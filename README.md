@@ -53,4 +53,28 @@ sql_error: Boolean flag to trigger the repair loop.
 | **4. NL-SQL** | DSPy Predict | Generates a valid SQLite query using the live schema (obtained via PRAGMA) and the constraints from the Planner. |
 | **5. Executor** | Tool/Function | Executes the generated SQL against `northwind.sqlite` and captures the columns, rows, or any database error. |
 | **6. Synthesizer** | DSPy Predict | **(Optimized)** Generates the final answer, strictly matching the `format_hint`, and ensures full citation completeness. |
-| **7. Check / Repair** | Conditional Logic | **Required Repair Loop:** Checks for `sql_error` or invalid output format. If an error is found and `repair_count < 2`, it reroutes to a repair state; otherwise, it terminates. |ك
+| **7. Check / Repair** | Conditional Logic | **Required Repair Loop:** Checks for `sql_error` or invalid output format. If an error is found and `repair_count < 2`, it reroutes to a repair state; otherwise, it terminates. |
+
+## DSPy Optimization and Resilience
+The project fulfills the DSPy optimization requirement and emphasizes resilience.
+
+Optimized Module: Synthesizer
+Justification: The Synthesizer was chosen for optimization because achieving exact format adherence (format_hint) and complete citation inclusion is critical for scoring. The optimization ensures the LLM's output reliably maps to the required Python type (e.g., int, float, list[object]).
+
+## Resilience (The Repair Loop)
+The agent maintains resilience by implementing a conditional state transition:
+
+If the Executor returns an error, the agent transitions to a repair state where the NL-SQL module is prompted to revise its query.
+
+If the Synthesizer output fails validation (e.g., wrong type, missing citations), the Synthesizer module is prompted to repair its final answer.
+
+The loop is strictly capped at 2 repair attempts per question.
+
+## Technical Constraints and Assumptions
+# Model Constraint Trade-off
+Assignment Constraint: The assignment specified Phi-3.5-mini-instruct.
+
+System Challenge: Initial testing with Phi-3.5-mini (2.4 GB) and Llama3 (4.7 GB) resulted in Ollama API errors due to insufficient available system RAM.
+
+Final Configuration: To ensure the agent is runnable and completes the batch evaluation, the final submission uses the smallest stable model, TinyLlama (637 MB). This is a necessary Quality-for-Stability trade-off, as TinyLlama is significantly weaker in complex JSON generation tasks, potentially requiring a higher number of repair attempts.
+
