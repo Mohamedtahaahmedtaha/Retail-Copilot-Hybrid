@@ -43,17 +43,14 @@ sql_result: Results or error message from the database executor.
 
 sql_error: Boolean flag to trigger the repair loop.
 
-Node	Module Type	Description
-1. Router	DSPy Classifier	Determines the required path: rag (policy/definitions), sql (simple numerical), or hybrid (RAG + SQL logic).
-2. Retriever	Custom RAG	Uses a simple approach (e.g., TF-IDF or BM25) over chunked markdown files (docs/) to return top-K context chunks and their unique IDs.
-3. Planner	DSPy Predict	(Hybrid Path) Extracts constraints (dates from documents, KPI definitions, categories) necessary for SQL generation from retrieved context.
-4. NL-SQL	DSPy Predict	Generates a valid SQLite query using the live schema (obtained via PRAGMA) and the constraints from the Planner.
-5. Executor	Tool/Function	Executes the generated SQL against northwind.sqlite and captures the columns, rows, or any database error.
-6. Synthesizer	DSPy Predict	(Optimized) Generates the final answer, strictly matching the format_hint, and ensures full citation completeness.
-7. Check / Repair	Conditional Logic	Required Repair Loop: Checks for sql_error or invalid output format. If an error is found and repair_count < 2, it reroutes to a repair state; otherwise, it terminates.
+### Graph Nodes and Flow
 
-repair_count: Counter for the repair loop attempts.
-
-Graph Nodes and Flow
-
-طك
+| Node | Module Type | Description |
+| :--- | :--- | :--- |
+| **1. Router** | DSPy Classifier | Determines the required path: **`rag`** (policy/definitions), **`sql`** (simple numerical), or **`hybrid`** (RAG + SQL logic). |
+| **2. Retriever** | Custom RAG | Uses a simple approach (e.g., TF-IDF or BM25) over chunked markdown files (`docs/`) to return top-K context chunks and their unique IDs. |
+| **3. Planner** | DSPy Predict | **(Hybrid Path)** Extracts constraints (dates from documents, KPI definitions, categories) necessary for SQL generation from retrieved context. |
+| **4. NL-SQL** | DSPy Predict | Generates a valid SQLite query using the live schema (obtained via PRAGMA) and the constraints from the Planner. |
+| **5. Executor** | Tool/Function | Executes the generated SQL against `northwind.sqlite` and captures the columns, rows, or any database error. |
+| **6. Synthesizer** | DSPy Predict | **(Optimized)** Generates the final answer, strictly matching the `format_hint`, and ensures full citation completeness. |
+| **7. Check / Repair** | Conditional Logic | **Required Repair Loop:** Checks for `sql_error` or invalid output format. If an error is found and `repair_count < 2`, it reroutes to a repair state; otherwise, it terminates. |ك
