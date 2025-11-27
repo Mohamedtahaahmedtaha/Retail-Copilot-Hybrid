@@ -22,3 +22,29 @@ To execute the batch run and generate the final `outputs_hybrid.jsonl` file:
 
 ```bash
 python run_agent_hybrid.py --batch sample_questions_hybrid_eval.jsonl --out outputs/outputs_hybrid.jsonl
+```
+## Core Architecture: LangGraph Workflow
+The agent utilizes a stateful LangGraph (AgentState) with three primary entry paths (rag, sql, hybrid) and a total of 7 core functional nodes and a dedicated Repair Loop.
+
+State Management (AgentState)
+The state dictionary manages context flow and error tracking:
+
+question: The user's original query.
+
+path: The path chosen by the Router (rag, sql, hybrid).
+
+retrieved_docs: Chunks retrieved from the RAG system.
+
+planner_output: Extracted constraints (dates, KPIs, categories).
+
+sql_query: The generated SQLite query string.
+
+sql_result: Results or error message from the database executor.
+
+sql_error: Boolean flag to trigger the repair loop.
+
+repair_count: Counter for the repair loop attempts.
+
+Graph Nodes and Flow
+
+طك
